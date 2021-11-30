@@ -252,10 +252,9 @@ summary(res.cox)
 
 ######
 #combi
-
-
+#combi area-HU
 #KM
-fit <- survfit(Surv(observatietijd, Overleden) ~ df$combi2, data = df)
+fit <- survfit(Surv(observatietijd, Overleden) ~ df$combi_areaHU, data = df)
 fit
 summary(fit)$table
 
@@ -271,43 +270,47 @@ print(p)
 surv_diff <- survdiff(Surv(observatietijd, Overleden) ~ combi, data = df)
 surv_diff
 
-
-
-#combi SMI-SMD
 #Crude
 #1year
-res.cox <- coxph(Surv(observatietijd365, overleden_1jaar==1) ~ df$combi, data = df)
+res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ df$combi_areaHU, data = df)
 summary(res.cox)
 #long-term
-res.cox <- coxph(Surv(observatietijd, Overleden==1) ~ combi , data = df)
+res.cox <- coxph(Surv(observationtime, mortality==1) ~ combi_areaHU , data = df)
 summary(res.cox)
 
 #Adjusted model        
 #1year
-res.cox <- coxph(Surv(observatietijd365, overleden_1jaar==1) ~ combi+Age+ geslacht+EURO2+NYHA+COPD+LVF+Accessroute+CKD , data = df)
+res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ combi_areaHU+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
 #long-term
-res.cox <- coxph(Surv(observatietijd, Overleden==1) ~ combi+Age+ geslacht+EURO2+NYHA+COPD+LVF+Accessroute+CKD , data = df)
+res.cox <- coxph(Surv(observationtime, mortality==1) ~ combi+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
 
-#combi2 SMI-IMAT
+#combi area-IMAT
+#KM
+fit <- survfit(Surv(observatietijd, Overleden) ~ df$combi_areaIMAT, data = df)
+fit
+summary(fit)$table
+
+p<-ggsurvplot(fit,xlab="Time (Years)",xscale="d_y", size=0.7,axes.offset=FALSE,
+              break.time.by=(365.25),pval=F, test.for.trend=FALSE,
+              conf.int=FALSE,label.curves=TRUE, ggtheme=theme_minimal()+theme,
+              tables.theme=theme_cleantable(), xlim=c(0,1700),expand_limits=c(0,0),
+              risk.table=T, risk.table.fontsize=5, censor=F, risk.table.y.text = F, palette = c("red",'blue'), ylim = c(0.4, 1.0))
+print(p)
+#export => Save as PDF => 6.5x6.5 inch
 #Crude
 #1year
-res.cox <- coxph(Surv(observatietijd365, overleden_1jaar==1) ~ df$combi2, data = df)
+res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ df$combi_areaIMAT, data = df)
 summary(res.cox)
 #long-term
-res.cox <- coxph(Surv(observatietijd, Overleden==1) ~ combi2 , data = df)
+res.cox <- coxph(Surv(observationtime, mortality==1) ~ combi_areaIMAT , data = df)
 summary(res.cox)
 
 #Adjusted model        
-#1jaar
-res.cox <- coxph(Surv(observatietijd365, overleden_1jaar==1) ~ combi2+Age+ geslacht+EURO2+NYHA+COPD+LVF+Accessroute+CKD , data = df)
+#1year
+res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ combi_areaIMAT+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
-#5jaar
-res.cox <- coxph(Surv(observatietijd, Overleden==1) ~ combi2+Age+ geslacht+EURO2+NYHA+COPD+LVF+Accessroute+CKD , data = df)
+#long-term
+res.cox <- coxph(Surv(observationtime, mortality==1) ~ combi_areaIMAT+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
-        
-
-
-
-
