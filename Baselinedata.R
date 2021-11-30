@@ -5,13 +5,13 @@ library(naniar)
 
 setwd('C:/Users/derck/OneDrive - HvA/Documents/GitHub/Quantib_mortality')
 df <- read_excel("data_complete.xlsx")
+,
+df <- replace_with_na(df,replace=list(weight = -1))
 
 #Calculate extra variables 
 df$BMI<-df$weight/((df$length/100)*(df$length/100))
 df$BSA<-sqrt((df$length*df$weight)/3600)
 df$NYHAtwogroups <-ifelse(df$NYHA>2,'3/4','1/2')
-
-df <- replace_with_na(df,replace=list(weight = -1))
 
 
 incl<-subset(df, quality==1&observationtime>-1)
@@ -22,7 +22,7 @@ excl$reason<-factor(excl$reason_quality)
 table(excl$reason)
 
 #Baseline data
-#Gender
+#sex
 tot_sex<-table(df$sex)
 incl_sex<-table(incl$sex)
 excl_sex<-table(excl$sex)
@@ -51,7 +51,7 @@ sd(excl$age, na.rm=T)
 
 t.test(incl$age, excl$age)
 
-#heigth
+#length
 hist(df$length)
 qqPlot(df$length)
 hist(incl$length)
@@ -139,10 +139,10 @@ sd(excl$BSA, na.rm=T)
 
 t.test(incl$BSA, excl$BSA)
 
-#
-table(df$tweegroepen)
-table(incl$tweegroepen)
-table(excl$tweegroepen)
+#NYHA
+table(df$NYHAtwogroups)
+incl_NYHA<-table(incl$NYHAtwogroups)
+excl_NYHA<-table(excl$NYHAtwogroups)
 t1<-c(453,746)
 t2<-c(66,140)
 t3<-data.frame(t1,t2)
