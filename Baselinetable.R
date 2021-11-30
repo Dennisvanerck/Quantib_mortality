@@ -9,7 +9,7 @@ df <- read_excel("data_complete.xlsx")
 df <- replace_with_na(df,replace=list(weight = -1))
 df <- replace_with_na(df,replace=list(LVF = -1))
 
-#Calculate extra variables 
+#Calculate variables 
 df$BMI<-df$weight/((df$length/100)*(df$length/100))
 df$BSA<-sqrt((df$length*df$weight)/3600)
 df$NYHAtwogroups <-ifelse(df$NYHA>2,'3/4','1/2')
