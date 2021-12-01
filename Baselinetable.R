@@ -8,6 +8,7 @@ setwd('C:/Users/derck/OneDrive - HvA/Documents/GitHub/Quantib_mortality')
 df <- read_excel("data_complete.xlsx")
 
 df <- replace_with_na(df,replace=list(weight = -1))
+df <- replace_with_na(df,replace=list(NYHA = -1))
 df <- replace_with_na(df,replace=list(LVF = -1))
 
 #Calculate variables 

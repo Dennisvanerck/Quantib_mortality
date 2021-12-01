@@ -15,14 +15,13 @@ df <- read_excel("data_complete.xlsx")
 df<-subset(df, quality==1)
 df<-subset(df, observationtime>-1)
 
-df <- replace_with_na(df,replace=list(length = -9))
 df <- replace_with_na(df,replace=list(weight = -1))
 df <- replace_with_na(df,replace=list(NYHA = -1))
+df <- replace_with_na(df,replace=list(LVF = -1))
 
 df$NYHAtwogroups <-ifelse(df$NYHA>2,1,2)
 
 #LVF
-df <- replace_with_na(df,replace=list(LVF = -1))
 df$LVF<-ifelse(df$LVF>45,0,df$LVF)
 df$LVF<-ifelse(df$LVF==1,0,df$LVF)
 df$LVF<-ifelse(df$LVF<=45&df$LVF>5 ,1,df$LVF)
