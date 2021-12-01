@@ -4,7 +4,7 @@ library("car")
 library(naniar)
 
 #set work directory to location dataset
-setwd('C:/Users/derck/OneDrive - HvA/Documents/GitHub/Quantib_mortality')
+setwd('C:/...')
 df <- read_excel("data_complete.xlsx")
 
 df <- replace_with_na(df,replace=list(weight = -1))
