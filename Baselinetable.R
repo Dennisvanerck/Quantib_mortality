@@ -3,6 +3,7 @@ library(dplyr)
 library("car")
 library(naniar)
 
+#set work directory to location dataset
 setwd('C:/Users/derck/OneDrive - HvA/Documents/GitHub/Quantib_mortality')
 df <- read_excel("data_complete.xlsx")
 
@@ -393,3 +394,4 @@ qqPlot(incl_female$IMATper)
 sum(is.na(incl_female$IMATper))
 mean(incl_female$IMATper, na.rm=TRUE)
 sd(incl_female$IMATper, na.rm=T)
+

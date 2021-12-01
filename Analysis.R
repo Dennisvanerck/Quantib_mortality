@@ -7,7 +7,8 @@ library(splines)
 library(naniar)
 library(zoo)
 library(mice)
-setwd('C:/Users/derck/OneDrive - HvA/Documents/GitHub/Quantib_mortality')
+#set work directory to location dataset
+setwd('C:/...')
 
 df <- read_excel("data_complete.xlsx")
 
@@ -62,12 +63,9 @@ df$mortality_1year<-as.factor(df$mortality_1year)
 df$observationtime365<-df$observationtime
 df$observationtime365[df$observationtime>365]<- 366
 
-#opdelen in 3 groepen
+#divide muscle mass and quality in low, mid high
 male<-subset(df, df$sex==1)
 female<-subset(df, df$sex==2)
-
-cut2(male$SMI_thres, g=3,onlycuts=TRUE)
-cut2(female$SMI_thres, g=3,onlycuts=TRUE)
 
 male$muscleareaclass <- as.factor(cut2(male$SMI_thres,g=3))
 levels(male$muscleareaclass) <- c('low','mid', 'high')
@@ -75,17 +73,11 @@ levels(male$muscleareaclass) <- c('low','mid', 'high')
 female$muscleareaclass <- as.factor(cut2(female$SMI_thres,g=3))
 levels(female$muscleareaclass) <- c('low','mid', 'high')
 
-cut2(male$HUmuscle, g=3,onlycuts=TRUE)
-cut2(female$HUmuscle, g=3,onlycuts=TRUE)
-
 male$HUclass <- as.factor(cut2(male$HUmuscle,g=3))
 levels(male$HUclass) <- c('low','mid', 'high')
 
 female$HUclass <- as.factor(cut2(female$HUmuscle,g=3))
 levels(female$HUclass) <- c('low','mid', 'high')
-
-cut2(male$IMATper, g=3,onlycuts=TRUE)
-cut2(female$IMATper, g=3,onlycuts=TRUE)
 
 male$IMATclass <- as.factor(cut2(-male$IMATper,g=3))
 levels(male$IMATclass) <- c('low','mid', 'high')
@@ -105,12 +97,12 @@ df$HUclass2[df$HUclass== 'mid'|df$HUclass== 'high'] <- 2
 df$HUclass2<-factor(df$HUclass2, labels=c('low', 'high'))
 df$HUclass2<-relevel(df$HUclass2, ref = 'high')
 
-#catagorical
 df$IMATclass2[df$IMATclass== 'low'] <- 1
 df$IMATclass2[df$IMATclass== 'mid'|df$IMATclass== 'high'] <- 2
 df$IMATclass2<-factor(df$IMATclass2, labels=c('low', 'high'))
 df$IMATclass2<-relevel(df$IMATclass2, ref = 'high')
 
+#combine muscle mass and muscle quality
 df$combi_areaHU[df$muscleareaclass== 'low' & df$HUclass=='low'] <- 1
 df$combi_areaHU[] <- 2
 df$combi_areaHU[df$muscleareaclass== 'low' & df$HUclass=='low'] <- 1
@@ -124,6 +116,8 @@ df$combi_areaHU<-relevel(df$combi_areaHU, ref = 'rest')
 
 df$combi_areaIMAT<-factor(df$combi_areaIMAT, labels=c('lowlow','rest'))
 df$combi_areaIMAT<-relevel(df$combi_areaIMAT, ref = 'rest')
+
+df$observationtime<-ifelse(df$observationtime==0, 1, df$observationtime)
 
 #theme
 theme <- theme(axis.line = element_line(colour = "black", size=0.4),
@@ -156,8 +150,6 @@ surv_diff <- survdiff(Surv(observationtime, mortality) ~ muscleareaclass, data =
 surv_diff
 
 #Cox regression 
-df$observationtime<-ifelse(df$observationtime==0, 1, df$observationtime)
-
 #crude model
 #1year
 res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ muscleareaclass2 , data = df)
@@ -168,7 +160,7 @@ summary(res.cox)
 
 #adjusted model
 #1year
-res.cox <- coxph(Surv(observatietime365, mortality_1year==1) ~ muscleareaclass2+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
+res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ muscleareaclass2+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
 #long-term
 res.cox <- coxph(Surv(observationtime, mortality==1) ~ muscleareaclass2+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
@@ -192,15 +184,10 @@ print(p)
 #log rank
 surv_diff <- survdiff(Surv(observationtime, mortality) ~ HUclass, data = df)
 surv_diff
-res <- pairwise_survdiff(Surv(observationtime, mortality) ~ HUclass, data = df)
-res
-#Cox regression 
-df$observationtime<-ifelse(df$observationtime==0, 1, df$observationtime)
-
 
 #crude model
 #1year
-res.cox <- coxph(Surv(observatietijd365, overleden_1jaar==1) ~ HUclass2 , data = df)
+res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ HUclass2 , data = df)
 summary(res.cox)
 #long-term
 res.cox <- coxph(Surv(observationtime, mortality==1) ~ HUclass2 , data = df)
@@ -235,15 +222,15 @@ surv_diff
 
 #Cox regression 
 #crude model
-#1 year
+#1year
 res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ IMATclass2 , data = df)
 summary(res.cox)
-#5jaar
-res.cox <- coxph(Surv(observatietijd, Overleden==1) ~ IMATclass2 , data = df)
+#long-term
+res.cox <- coxph(Surv(observationtime, mortality==1) ~ IMATclass2 , data = df)
 summary(res.cox)
 
 #adjusted model  
-#1 year
+#1year
 res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ IMATclass2+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
 #long-term
@@ -251,10 +238,9 @@ res.cox <- coxph(Surv(observationtime, mortality==1) ~ IMATclass2+age+ sex+EURO2
 summary(res.cox)
 
 ######
-#combi
 #combi area-HU
 #KM
-fit <- survfit(Surv(observatietijd, Overleden) ~ df$combi_areaHU, data = df)
+fit <- survfit(Surv(observationtime, mortality) ~ df$combi_areaHU, data = df)
 fit
 summary(fit)$table
 
@@ -267,7 +253,7 @@ print(p)
 #export => Save as PDF => 6.5x6.5 inch
 
 #log rank
-surv_diff <- survdiff(Surv(observatietijd, Overleden) ~ combi, data = df)
+surv_diff <- survdiff(Surv(observationtime, mortality) ~ combi_areaHU, data = df)
 surv_diff
 
 #Crude
@@ -283,12 +269,12 @@ summary(res.cox)
 res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ combi_areaHU+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
 #long-term
-res.cox <- coxph(Surv(observationtime, mortality==1) ~ combi+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
+res.cox <- coxph(Surv(observationtime, mortality==1) ~ combi_areaHU+age+ sex+EURO2+NYHAtwogroups+COPD+LVF+accessroute+CKD , data = df)
 summary(res.cox)
 
 #combi area-IMAT
 #KM
-fit <- survfit(Surv(observatietijd, Overleden) ~ df$combi_areaIMAT, data = df)
+fit <- survfit(Surv(observationtime, mortality) ~ df$combi_areaIMAT, data = df)
 fit
 summary(fit)$table
 
@@ -299,6 +285,11 @@ p<-ggsurvplot(fit,xlab="Time (Years)",xscale="d_y", size=0.7,axes.offset=FALSE,
               risk.table=T, risk.table.fontsize=5, censor=F, risk.table.y.text = F, palette = c("red",'blue'), ylim = c(0.4, 1.0))
 print(p)
 #export => Save as PDF => 6.5x6.5 inch
+
+#log rank
+surv_diff <- survdiff(Surv(observationtime, mortality) ~ combi_areaIMAT, data = df)
+surv_diff
+
 #Crude
 #1year
 res.cox <- coxph(Surv(observationtime365, mortality_1year==1) ~ df$combi_areaIMAT, data = df)
